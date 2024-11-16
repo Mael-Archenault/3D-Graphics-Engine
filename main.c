@@ -12,7 +12,6 @@ const int WIDTH = 640;
 const int HEIGHT = 480;
 const int TARGET_FRAMERATE = 60;
 
-const int tritowatch = 12;
 float objectDistance = 30.0f;
 const int modelColor[4] = {255, 0, 0, 255};
 
@@ -25,14 +24,9 @@ typedef struct triangle {
     float color[4];
 }Triangle;
 
-void displayTriangle(Triangle *triangle){
-    printf(" %.5f %.5f %.5f   %.5f %.5f %.5f   %.5f %.5f %.5f", triangle->p[0].x, triangle->p[0].y, triangle->p[0].z, triangle->p[1].x, triangle->p[1].y, triangle->p[1].z, triangle->p[2].x, triangle->p[2].y, triangle->p[2].z);
-    printf("\n");
-}
 
 typedef struct mesh {
     int triangles_number;
-    int capacity;
     Triangle tris[10000];
 }Mesh;
 
@@ -40,21 +34,11 @@ typedef struct mat4x4{
     float m[4][4];
 }Mat4x4;
 
-void displayMatrix(Mat4x4* m){
-    for (int i = 0; i <4; i++){
-        for (int j = 0; j < 4; j++){
-            printf("%.5f ", m->m[i][j]);
-        }
-        printf("\n");
-    }
-}
-
 int compare_distance(const void* a, const void* b) {
     Triangle t1 = *(Triangle*)a;
     Triangle t2 = *(Triangle*)b;
     float z1 = (t1.p[0].z + t1.p[1].z + t1.p[2].z)/3.0f;
     float z2 = (t2.p[0].z + t2.p[1].z + t2.p[2].z)/3.0f;
-
 
     if (z1 > z2) {
         return -1;
@@ -66,8 +50,9 @@ int compare_distance(const void* a, const void* b) {
         return 0;
     }
 }
+
 Mesh openOBJ(){
-    FILE *file = fopen("bear.obj", "r");
+    FILE *file = fopen("./3d_models/bear.obj", "r");
 
     Vec3D vertices[10000];
     Triangle faces[10000];
@@ -80,11 +65,9 @@ Mesh openOBJ(){
         if (line[0] == 'v' && line[1] == ' '){
             Vec3D v;
             sscanf(line, "v %f %f %f",&v.x, &v.y, &v.z);
-            vertices[vertex_count++] = v;
-
-           
-           
+            vertices[vertex_count++] = v; 
         }
+
         if (line[0] == 'f' && line[1] == ' '){
             Triangle tri;
             int indexes[3];
@@ -94,59 +77,16 @@ Mesh openOBJ(){
             tri.p[2] = vertices[indexes[2] - 1];
             
             faces[face_count++] = tri;
-            
-           
+        }
     }
-    }
-
-    //printf("%d %d \n", vertex_count, face_count);
 
     Mesh mesh;
     mesh.triangles_number = face_count;
-    mesh.capacity = face_count;
     for (int i = 0; i < face_count; i++){
-        if (i==tritowatch){
-            displayTriangle(&faces[i]);
-        }
-        mesh.tris[i] = faces[i];
-        
+        mesh.tris[i] = faces[i]; 
     }
 
     return mesh;
-
-
-
-}
-Mesh createMeshCube(){
-
-     //South face
-    Triangle t1 = { 0.0f, 0.0f, 0.0f,    0.0f, 1.0f, 0.0f,   1.0f, 1.0f, 0.0f };
-    Triangle t2 = { 0.0f, 0.0f, 0.0f,    1.0f, 1.0f, 0.0f,   1.0f, 0.0f, 0.0f };
-
-    //North face
-    Triangle t3 = { 1.0f, 0.0f, 1.0f,    1.0f, 1.0f, 1.0f,   0.0f, 1.0f, 1.0f };
-    Triangle t4 = { 1.0f, 0.0f, 1.0f,    0.0f, 1.0f, 1.0f,   0.0f, 0.0f, 1.0f };
-
-    //Up face
-    Triangle t5 = { 0.0f, 1.0f, 0.0f,    0.0f, 1.0f, 1.0f,   1.0f, 1.0f, 1.0f };
-    Triangle t6 = { 0.0f, 1.0f, 0.0f,    1.0f, 1.0f, 1.0f,   1.0f, 1.0f, 0.0f };
-
-    //Down face
-    Triangle t7 = { 0.0f, 0.0f, 0.0f,    1.0f, 0.0f, 0.0f,   1.0f, 0.0f, 1.0f };
-    Triangle t8 = { 0.0f, 0.0f, 0.0f,    1.0f, 0.0f, 1.0f,   0.0f, 0.0f, 1.0f };
-
-    //Left face
-    Triangle t9 = { 0.0f, 0.0f, 0.0f,    0.0f, 1.0f, 1.0f,   0.0f, 1.0f, 0.0f };
-    Triangle t10 = { 0.0f, 0.0f, 0.0f,    0.0f, 0.0f, 1.0f,   0.0f, 1.0f, 1.0f };
-
-    //Right face
-    Triangle t11 = { 1.0f, 0.0f, 0.0f,    1.0f, 1.0f, 0.0f,   1.0f, 1.0f, 1.0f };
-    Triangle t12 = { 1.0f, 0.0f, 0.0f,    1.0f, 1.0f, 1.0f,   1.0f, 0.0f, 1.0f };
-
-
-    Mesh cubeMesh = {12, 12, t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12};
-    return cubeMesh;
-    
 }
 
 void multiplyMatrixVect(Vec3D * vin, Vec3D * vout, Mat4x4 m){
@@ -185,6 +125,9 @@ void setupRotationMatrix(Mat4x4 *m, float itheta, int iaxis){
 }
         
 int main(int argc, char *argv[]){
+
+
+    ///// Setup of all transformations matrices /////
     
     float fNear = 0.1f;
     float fFar = 1000.0f;
@@ -204,28 +147,28 @@ int main(int argc, char *argv[]){
     projectionMatrix.m[3][2] = -fNear * fQ;
     projectionMatrix.m[2][3] = 1.0f;
 
+
+     ///// Setup of camera and light direction vectors /////
+    
+
     Vec3D vcamera = {0.0f,0.0f,0.0f};
 
     Vec3D light_direction = {0.0f,0.0f,-1.0f};
     float l = sqrt(light_direction.x * light_direction.x + light_direction.y * light_direction.y + light_direction.z * light_direction.z);
     light_direction.x /= l; light_direction.y /= l; light_direction.z /= l;
 
+    ///// Opening the obj file /////
     Mesh cubeMesh = openOBJ();
 
-    displayTriangle(&cubeMesh.tris[tritowatch]);
-
-    float thetaX = 17*3.14/180;
-    float thetaZ = 85*3.14/180;
+    float thetaX = 0;
+    float thetaZ = 0;
 
     setupRotationMatrix(&rotationMatrixX, thetaX, 0);
     setupRotationMatrix(&rotationMatrixZ, thetaZ, 1);
 
     Triangle triProjected, triTranslated, triRotatedZ, triRotatedZX;
     
-    
-    
-
-    
+    ///// Initializing Graphic renderer /////
 
     SDL_Window *window;
     SDL_Renderer *renderer;
@@ -233,13 +176,9 @@ int main(int argc, char *argv[]){
     SDL_Init(SDL_INIT_VIDEO);
     SDL_CreateWindowAndRenderer(WIDTH, HEIGHT, 0, &window, &renderer);
 
-    
-
     int frameStart, frameTime;
-    
-    
-    // cubeMesh->triangles_number = 4;
     int running = 1;
+    int drawLines = 0;
     
     while (running==1)
     {
@@ -260,8 +199,6 @@ int main(int argc, char *argv[]){
         int facingTriangles = 0;
         float luminance;
 
-        //printf("il y a %d triangles \n", cubeMesh.triangles_number);
-
         for(int i = 0; i <cubeMesh.triangles_number; i++){
 
             
@@ -273,16 +210,10 @@ int main(int argc, char *argv[]){
             multiplyMatrixVect(&triRotatedZ.p[1], &triRotatedZX.p[1], rotationMatrixX);
             multiplyMatrixVect(&triRotatedZ.p[2], &triRotatedZX.p[2], rotationMatrixX);
 
-
-
-            
-            
-
             triTranslated = triRotatedZX;
             triTranslated.p[0].z = triRotatedZX.p[0].z + objectDistance;
             triTranslated.p[1].z = triRotatedZX.p[1].z + objectDistance;
             triTranslated.p[2].z = triRotatedZX.p[2].z + objectDistance;
-
 
             Vec3D normal, line1, line2;
             line1.x = triTranslated.p[1].x - triTranslated.p[0].x;
@@ -301,7 +232,6 @@ int main(int argc, char *argv[]){
             normal.x /= l;
             normal.y /= l;
             normal.z /= l;
-
             luminance = light_direction.x*normal.x + light_direction.y*normal.y + light_direction.z*normal.z;
             luminance = (luminance < 0.0f)?0.0f : luminance;
     
@@ -309,10 +239,6 @@ int main(int argc, char *argv[]){
                 normal.y*(triTranslated.p[0].y - vcamera.y) +
                 normal.z*(triTranslated.p[0].z - vcamera.z) < 0.0f)
             {
-
-
-                
-            
                 multiplyMatrixVect(&triTranslated.p[0], &triProjected.p[0], projectionMatrix);
                 multiplyMatrixVect(&triTranslated.p[1], &triProjected.p[1], projectionMatrix);
                 multiplyMatrixVect(&triTranslated.p[2], &triProjected.p[2], projectionMatrix);
@@ -321,8 +247,6 @@ int main(int argc, char *argv[]){
                 triProjected.p[1].x += 1.0f;triProjected.p[1].y += 1.0f;
                 triProjected.p[2].x += 1.0f;triProjected.p[2].y += 1.0f;
                 
-        
-
                 triProjected.p[0].x *= 0.5f * (float)WIDTH;
                 triProjected.p[0].y *= 0.5f * (float)HEIGHT;
                 triProjected.p[1].x *= 0.5f * (float)WIDTH;
@@ -338,57 +262,30 @@ int main(int argc, char *argv[]){
 
                 triangleToRaster[facingTriangles] = triProjected;
                 facingTriangles++;
-
-                //printf("%d, %.5f \n",i,triProjected.p[1].x);
-
-                //printf("%f %f %f %f %f %f %f \n", triProjected.p[0].x, triProjected.p[0].y, triProjected.p[1].x, triProjected.p[1].y, triProjected.p[2].x, triProjected.p[2].y);
-                
-                
-                //drawTriangle(renderer, (int)triProjected.p[0].x, (int)triProjected.p[0].y, (int)triProjected.p[1].x, (int)triProjected.p[1].y, (int)triProjected.p[2].x, (int)triProjected.p[2].y);
-                //printf("%f \n" , luminance);
-
-                //printf("%d   %d %d    %d %d    %d %d     \n", i, (int)triProjected.p[0].x,(int)triProjected.p[0].y,(int)triProjected.p[1].x,(int)triProjected.p[1].y,(int)triProjected.p[2].x,(int)triProjected.p[2].y);
-            
             
             }
 
         }
 
-        // sorting triangles to display
-        // printf("\n %d\n\n", facingTriangles);  
         qsort(triangleToRaster, facingTriangles, sizeof(Triangle),compare_distance);
-        // for (int i = 0; i <facingTriangles; i++) {
-        //     float zi = (triangleToRaster[i].p[0].z + triangleToRaster[i].p[1].z + triangleToRaster[i].p[2].z)/3.0f;
-        //     printf(" %f ", zi);
-        // }
-        // printf("\n\n\n");
-
 
         for (int i = 0; i < facingTriangles; i++){
             Triangle tri = triangleToRaster[i];
             fillTriangle(renderer, (int)tri.p[0].x,(int)tri.p[0].y, (int)tri.p[1].x,(int)tri.p[1].y, (int)tri.p[2].x,(int)tri.p[2].y, tri.color);
-            drawTriangle(renderer, (int)tri.p[0].x,(int)tri.p[0].y, (int)tri.p[1].x,(int)tri.p[1].y, (int)tri.p[2].x,(int)tri.p[2].y);
+            if (drawLines == 1){
+                drawTriangle(renderer, (int)tri.p[0].x,(int)tri.p[0].y, (int)tri.p[1].x,(int)tri.p[1].y, (int)tri.p[2].x,(int)tri.p[2].y);
+            }
         }
-
         
-        
-        // drawTriangle(renderer, 0,0,100,10,10,100);
         SDL_RenderPresent(renderer);
-
         
         thetaZ += 0.01f;
         thetaX = thetaX + 0.01f;
         setupRotationMatrix(&rotationMatrixX, thetaX, 0);
         setupRotationMatrix(&rotationMatrixZ, thetaZ, 1);
 
-        // objectDistance += 0.1f;
-        // printf("%f \n", objectDistance);
-        
-        
-        
         frameTime = SDL_GetTicks() - frameStart;
 
-        // displayTriangle(&cubeMesh->tris[0]);
         if (1000 / TARGET_FRAMERATE > frameTime)
         {
             SDL_Delay(1000 / TARGET_FRAMERATE - frameTime);

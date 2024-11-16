@@ -2,7 +2,6 @@
 #include <stdio.h>
 
 void drawTriangle(SDL_Renderer *renderer, int x1, int y1, int x2, int y2, int x3, int y3){
-    //printf(" %d %d %d %d %d %d \n", x1, y1, x2, y2, x3, y3);
     SDL_SetRenderDrawColor(renderer, 255,255,255, 255);
     SDL_RenderDrawLine(renderer, x1, y1, x2, y2);
     SDL_RenderDrawLine(renderer, x2, y2, x3, y3);
