@@ -27,8 +27,9 @@ For each triangle of the model:
 
 I haven't done any interface to use this code. If you are a bit of a coder, you should be able to find what variables to change to try different things. However, I will give you some informations on basic changes.
 
-To try the code :
-- download the git folder and place it in one of your directory
+First, you need to download the git folder and place it in one of your directory (it is important to keep all files together)
+## To execute the code
+
 - execute the "main.exe" file to get a quick view of the 3D renderer
 
 If you want to change parameters, you will need a C development environment (I used Visual Studio Code).
@@ -36,7 +37,7 @@ If you want to change parameters, you will need a C development environment (I u
 Open "main.c", that's where you will do most of the changes.
 
 ## Change viewed model
-In "main.c" in the function "openObj()", change the path in the first line to the path of the new OBJ file.
+In "main.c" in the function "openObj()", change the path in the first line to the path of the new OBJ file. You already have various files in /3d_models.
 
 ## Display lines
 
