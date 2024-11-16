@@ -1,0 +1,6 @@
+
+void displayTriangle();
+void displayMatrix();
+
+
+
