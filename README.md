@@ -38,6 +38,7 @@ Open "main.c", that's where you will do most of the changes.
 
 ## Change viewed model
 In "main.c" in the function "openObj()", change the path in the first line to the path of the new OBJ file. You already have various files in /3d_models.
+When modifying the viewed model, you will sometimes be forced to change the "objectDistance" variable. It describes the distance between the screen and the object.
 
 ## Display lines
 
